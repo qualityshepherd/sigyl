@@ -13,7 +13,9 @@ function renderIdentity (identity) {
 }
 
 export function generateIndex (identities, mirrorDomain) {
-  const items = identities.map(renderIdentity).join('\n')
+  const list = identities.length
+    ? `<ul>\n${identities.map(renderIdentity).join('\n')}\n    </ul>`
+    : `<p class="empty">no vouched identities yet</p>`
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -33,9 +35,7 @@ export function generateIndex (identities, mirrorDomain) {
       </nav>
     </header>
     <p>Vouched identities on this mirror.</p>
-    <ul>
-${items}
-    </ul>
+    ${list}
     <footer>
       <a href="/about">sigyl</a> &mdash; MIT license &mdash; <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">source</a>
     </footer>
