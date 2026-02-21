@@ -21,23 +21,25 @@ export function generateIndex (identities, mirrorDomain) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${mirrorDomain} - Sigyl Mirror</title>
-  <style>
-    body { font-family: monospace; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
-    h1 { font-size: 1rem; }
-    ul { list-style: none; padding: 0; }
-    .identity { padding: 0.5rem 0; border-bottom: 1px solid #eee; }
-    .identity a { font-weight: bold; text-decoration: none; }
-    .identity a:hover { text-decoration: underline; }
-    .check { color: green; margin: 0 0.5rem; }
-    .fingerprint { color: #666; font-size: 0.85rem; display: block; margin-top: 0.25rem; }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>${mirrorDomain}</h1>
-  <p>Vouched identities on this mirror.</p>
-  <ul>
+  <div class="wrap">
+    <header>
+      <h1>${mirrorDomain}</h1>
+      <nav>
+        <a href="/about">about</a>
+        <a href="/keygen">keygen</a>
+      </nav>
+    </header>
+    <p>Vouched identities on this mirror.</p>
+    <ul>
 ${items}
-  </ul>
+    </ul>
+    <footer>
+      <a href="/about">sigyl</a> &mdash; MIT license &mdash; <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">source</a>
+    </footer>
+  </div>
 </body>
 </html>`
 }

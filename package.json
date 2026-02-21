@@ -1,19 +1,17 @@
 {
   "name": "sigyl",
+  "author": "brine",
   "version": "0.1.0",
   "type": "module",
-  "description": "Decentralized identity and trust protocol",
+  "description": "Fixing the fediverse's identity problem... with static sites.",
+  "license": "MIT",
+  "standard": {
+    "env": ["node"]
+  },
   "main": "src/mirror.js",
   "scripts": {
     "start": "node src/mirror.js",
     "test": "node --test tests/unit/*.test.js",
-    "lint": "standard src/**/*.js tests/**/*.js"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "standard": "^17.0.0"
-  },
-  "standard": {
-    "env": ["node"]
+    "pretty": "npx standard --fix"
   }
 }
