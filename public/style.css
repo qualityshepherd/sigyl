@@ -164,11 +164,10 @@ button:disabled {
   min-height: 1rem;
 }
 
-.fingerprint {
-  font-size: 0.8rem;
-  color: var(--dim);
-  display: block;
-  margin-top: 0.25rem;
+.fingerprint code {
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .qr-wrap {
