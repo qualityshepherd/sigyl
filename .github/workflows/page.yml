@@ -3,12 +3,28 @@ name: pages
 on:
   push:
     branches: [main]
-  workflow_run:
-    workflows: [crawl]
-    types: [completed]
+  schedule:
+    - cron: '*/42 * * * *'
+  workflow_dispatch:
 
 jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node src/mirror.js
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add public/index.html
+          git diff --cached --quiet || git commit -m "crawl"
+          git push
+
   deploy:
+    needs: crawl
     runs-on: ubuntu-latest
     permissions:
       pages: write
