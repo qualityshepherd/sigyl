@@ -1,0 +1,2 @@
+# add identity.json urls here, one per line
+# https://example.com/identity.json
