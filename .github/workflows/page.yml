@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: 22
       - run: node src/mirror.js
+        env:
+          MIRROR_DOMAIN: ${{ vars.MIRROR_DOMAIN }}
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
