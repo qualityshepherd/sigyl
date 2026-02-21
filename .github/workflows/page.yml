@@ -8,27 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  crawl:
+  test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node src/mirror.js
-        env:
-          MIRROR_DOMAIN: ${{ vars.MIRROR_DOMAIN }}
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add public/index.html
-          git diff --cached --quiet || git commit -m "crawl"
-          git push
+      - run: node --test tests/unit/*.test.js
 
   deploy:
-    needs: crawl
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -38,8 +28,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          ref: main
+          node-version: 22
+      - run: node src/mirror.js
+        env:
+          MIRROR_DOMAIN: ${{ vars.MIRROR_DOMAIN }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public/
