@@ -165,12 +165,10 @@ button:disabled {
 }
 
 .fingerprint {
-  font-size: 1.4rem;
-  letter-spacing: 0.05em;
-  color: var(--bright);
-  padding: 1rem 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--dim);
+  display: block;
+  margin-top: 0.25rem;
 }
 
 .qr-wrap {
