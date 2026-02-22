@@ -30,6 +30,7 @@ jobs:
       - run: node src/mirror.js
         env:
           MIRROR_DOMAIN: ${{ vars.MIRROR_DOMAIN }}
+      - run: cat public/crawl.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public/
