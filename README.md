@@ -46,7 +46,7 @@ It's a directory of humans vouched by other humans. Apps build on top. The proto
 
 ## WHY NOT PGP?
 
-[PGP tried this](https://en.wikipedia.org/wiki/Web_of_trust). It failed — not cryptographically, but socially. Key-signing parties, expiring keys, tooling nobody used. Trust rotted because there was no stake.
+PGP tried this. It failed — not cryptographically, but socially. Key-signing parties, expiring keys, tooling nobody used. Trust rotted because there was no stake.
 
 Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirror, your reputation, your call. And a domain costs $10/year — that's the stake PGP never had.
 
@@ -57,6 +57,37 @@ Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirro
 - The thing that makes it work is a file on your website
 - Human vouching doesn't scale for bots — feature, not bug
 - Narrow by design — it refuses to solve everything
+- Not trying to make trust _scalable_ — **making mistrust cheap and visible**
+
+## RUN YOUR OWN MIRROR
+
+1. Buy a domain (~$10/year). This is your stake. Your mirror lives here.
+1. Fork this repo
+1. Enable GitHub Pages on your fork (Settings → Pages → source: GitHub Actions)
+1. Add a repo variable: Settings → Secrets and variables → Actions → Variables → `MIRROR_DOMAIN` = `yourdomain.com`. This is how the mirror knows its own name.
+1. Generate your key at `sigyl.org/keygen` and publish `identity.json` on your domain
+1. Add your domain to `trust.json` as vouch — this is both your crawl list and your trust list
+1. Push. The Action runs, your mirror is live.
+
+```
+git clone https://github.com/qualityshepherd/sigyl
+```
+
+You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
+
+## GENERATING _YOUR_ KEY
+
+Go to `sigyl.org/keygen`. Pick a passphrase — a sentence only you would think of. Your favorite obscure movie quote is perfect.
+
+Your passphrase is your key. Same sentence → same key → every time → on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
+
+Type it again tomorrow and you'll get the exact same public key.
+
+## THE STACK
+
+Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No VC. Humans required.
+
+MIT — brine
 
 ## TRUST.JSON
 
@@ -78,35 +109,3 @@ One file does everything. No separate seeds list.
 - **block_patterns** — wildcard blocks. `*.ai` blocks every `.ai` domain.
 
 Everything not listed is ignored.
-
-## RUN YOUR OWN MIRROR
-
-1. Buy a domain (~$10/year). This is your stake. Your mirror lives here.
-1. Fork the sigyl repo
-1. Enable GitHub Pages on your fork (Settings → Pages → source: GitHub Actions)
-1. Add a repo variable: Settings → Secrets and variables → Actions → Variables → `MIRROR_DOMAIN` = `yourdomain.com`. This is how the mirror knows its own name.
-1. Generate your key at `sigyl.org/keygen` and publish `identity.json` to your domain root
-1. Add your domain to `trust.json` as vouch — this is both your crawl list and your trust list
-1. Push. The Action runs, your mirror is live.
-
-```
-git clone https://github.com/qualityshepherd/sigyl
-```
-
-After each crawl, `crawl.json` is written to your `public/` folder and deployed with your mirror. It's overwritten every run — use git history as your audit trail.
-
-You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
-
-## GENERATING _YOUR_ KEY
-
-Go to `sigyl.org/keygen`. Pick a passphrase — a sentence only you would think of. Your favorite obscure movie quote is perfect.
-
-Your passphrase is your key. Same sentence → same key → every time → on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
-
-Type it again tomorrow and you'll get the exact same public key.
-
-## THE STACK
-
-Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No VC. Humans required.
-
-_MIT — brine_
