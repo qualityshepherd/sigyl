@@ -1,9 +1,9 @@
 # SIGYL
-_Small, trusted groups. Domain as collateral. Totally free._
+_Small, trusted groups. Domain as collateral. Totally free._ 
 
 ## WHAT IT IS
 
-A lightweight, human-dependent web of trust. You publish a small JSON file on a domain you own. A human who knows you vouches for it on their mirror (static site) on their own domain. That's it.
+**Sigyl** is a domain-based trust index for operators who want visibility without surrendering judgment. A lightweight, human-dependent web of trust. You publish a small JSON file on a domain you own. A human who knows you vouches for it on their mirror (static site) on their own domain. That's it.
 
 No servers. No database. No blockchain. No algorithm. **_Humans required_**.
 
