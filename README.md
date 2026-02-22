@@ -1,9 +1,9 @@
 # SIGYL
-_Small, trusted groups. Domain as collateral. Totally free._ 
+_Small, trusted groups. Domain as collateral. Totally free._
 
 ## WHAT IT IS
 
-**Sigyl** is a domain-based trust index for operators who want visibility without surrendering judgment. A lightweight, human-dependent web of trust. You publish a small JSON file on a domain you own. A human who knows you vouches for it on their mirror (static site) on their own domain. That's it.
+A lightweight, human-dependent web of trust. You publish a small JSON file on a domain you own. A human who knows you vouches for it on their mirror (static site) on their own domain. That's it.
 
 No servers. No database. No blockchain. No algorithm. **_Humans required_**.
 
@@ -57,17 +57,18 @@ Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirro
 - The thing that makes it work is a file on your website
 - Human vouching doesn't scale for bots — feature, not bug
 - Narrow by design — it refuses to solve everything
-- Not trying to make trust _scalable_ — **making mistrust cheap and visible**
+- Not trying to make trust scalable — making mistrust cheap and visible
 
 ## RUN YOUR OWN MIRROR
 
 1. Buy a domain (~$10/year). This is your stake. Your mirror lives here.
-1. Fork this repo
-1. Enable GitHub Pages on your fork (Settings → Pages → source: GitHub Actions)
-1. Add a repo variable: Settings → Secrets and variables → Actions → Variables → `MIRROR_DOMAIN` = `yourdomain.com`. This is how the mirror knows its own name.
-1. Generate your key at `sigyl.org/keygen` and publish `identity.json` on your domain
-1. Add your domain to `trust.json` as vouch — this is both your crawl list and your trust list
-1. Push. The Action runs, your mirror is live.
+2. Fork this repo
+3. Enable GitHub Pages on your fork (Settings → Pages → source: GitHub Actions)
+4. Add a repo variable: Settings → Secrets and variables → Actions → Variables → `MIRROR_DOMAIN` = `yourdomain.com`. This is how the mirror knows its own name.
+5. Generate your key at `sigyl.org/keygen` and publish `identity.json` on your domain
+6. Add your domain to `trust.json` as vouch — this is both your crawl list and your trust list
+
+8. Push. The Action runs, your mirror is live.
 
 ```
 git clone https://github.com/qualityshepherd/sigyl
@@ -109,3 +110,28 @@ One file does everything. No separate seeds list.
 - **block_patterns** — wildcard blocks. `*.ai` blocks every `.ai` domain.
 
 Everything not listed is ignored.
+
+## HOW GOSSIP WORKS
+
+Without gossip, Sigyl is just a list. With gossip, it's a web-of-trust.
+
+During each crawl, your mirror looks at who your vouched mirrors trust. Anyone new gets added to your `trust.json` as a stranger: discovered but not trusted. ONLY humans decide who to trust.
+
+```
+you
+├── vouch: trustedmirror.org
+│   └── discovers: alice.net      → added as stranger
+│   └── discovers: bob.org        → added as stranger
+└── vouch: friend.mirror
+    └── discovers: carol.dev      → added as stranger
+    └── discovers: dave.io        → added as stranger
+
+next crawl:
+  you promote alice.net to vouch  → now crawled
+  you block dave.io               → never crawled
+  bob.org and carol.dev sit as strangers → watching
+```
+
+**Discovery is automatic. Trust is not.**
+
+No domain gets crawled without a human deciding to vouch it. The web grows through judgment, not automation. That's the whole point.

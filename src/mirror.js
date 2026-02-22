@@ -18,18 +18,52 @@ export async function loadTrust () {
   }
 }
 
+export async function saveTrust (trust) {
+  await fs.writeFile(TRUST_FILE, JSON.stringify(trust, null, 2), 'utf-8')
+}
+
+export function discoverStrangers (identities, trust) {
+  const discovered = {}
+
+  for (const identity of identities) {
+    const domain = identity.domain
+    if (!trust[domain] && !matchesPattern(trust, domain)) {
+      discovered[domain] = STRANGER
+    }
+  }
+
+  return discovered
+}
+
 export async function main () {
   const crawledAt = new Date().toISOString()
-  const trust = await loadTrust()
+  let trust = await loadTrust()
 
+  // Only crawl vouched domains
   const domains = Object.entries(trust)
-    .filter(([key, val]) => !key.startsWith('block_patterns') && (val === VOUCH || val === STRANGER))
+    .filter(([key, val]) => key !== 'block_patterns' && val === VOUCH)
     .map(([domain]) => domain)
 
   const urls = domains.map(d => `https://${d}/identity.json`)
   const identities = await crawlSeeds(urls)
 
-  // Build crawl log
+  // Discover new domains from vouched mirrors and add as strangers
+  const discovered = discoverStrangers(identities, trust)
+  const newStrangers = Object.keys(discovered)
+
+  if (newStrangers.length) {
+    trust = { ...trust, ...discovered }
+    await saveTrust(trust)
+    console.log(`discovered ${newStrangers.length} new stranger(s): ${newStrangers.join(', ')}`)
+  }
+
+  const vouched = identities.filter(i =>
+    getStatus(trust, i.domain) === VOUCH && !matchesPattern(trust, i.domain)
+  )
+
+  const mirrorDomain = process.env.MIRROR_DOMAIN || 'localhost'
+  const html = generateIndex(vouched, mirrorDomain)
+
   const results = domains.map(domain => {
     const found = identities.filter(i => i.domain === domain)
     return {
@@ -40,17 +74,11 @@ export async function main () {
     }
   })
 
-  const vouched = identities.filter(i =>
-    getStatus(trust, i.domain) === VOUCH && !matchesPattern(trust, i.domain)
-  )
-
-  const mirrorDomain = process.env.MIRROR_DOMAIN || 'localhost'
-  const html = generateIndex(vouched, mirrorDomain)
-
   const log = {
     crawled_at: crawledAt,
     mirror: mirrorDomain,
     vouched: vouched.length,
+    discovered: newStrangers,
     results
   }
 
@@ -59,15 +87,15 @@ export async function main () {
     fs.writeFile(LOG_FILE, JSON.stringify(log, null, 2), 'utf-8')
   ])
 
-  console.log(`crawled ${domains.length} domains, ${vouched.length} vouched`)
+  console.log(`crawled ${domains.length} domains, ${vouched.length} vouched, ${newStrangers.length} discovered`)
 
   const query = process.argv[2]
   if (query) {
-    const results = searchIdentities(vouched, query)
-    results.forEach(i => console.log(`${i.domain} - ${i.public_key}`))
+    const found = searchIdentities(vouched, query)
+    found.forEach(i => console.log(`${i.domain} - ${i.public_key}`))
   }
 
-  return { identities, vouched, log }
+  return { identities, vouched, discovered, log }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

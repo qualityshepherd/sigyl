@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { loadTrust } from '../../src/mirror.js'
+import { loadTrust, discoverStrangers } from '../../src/mirror.js'
 import { getStatus, VOUCH, STRANGER, BLOCK } from '../../src/trust.js'
 
 test('loadTrust: returns object', async () => {
@@ -23,6 +23,34 @@ test('trust: blocked domains are ignored', () => {
   assert.equal(getStatus(trust, 'shitba.gs'), BLOCK)
 })
 
-test('trust: unknown domains are ignored', () => {
-  assert.equal(getStatus({}, 'nobody.com'), STRANGER)
+test('discoverStrangers: finds new domains not in trust', () => {
+  const identities = [
+    { domain: 'alice.net', public_key: 'abc', mirror: 'https://sigyl.org' },
+    { domain: 'brine.dev', public_key: 'def', mirror: 'https://sigyl.org' }
+  ]
+  const trust = { 'brine.dev': 'vouch' }
+  const discovered = discoverStrangers(identities, trust)
+
+  assert.equal(discovered['alice.net'], 'stranger')
+  assert.equal(discovered['brine.dev'], undefined)
+})
+
+test('discoverStrangers: ignores blocked patterns', () => {
+  const identities = [
+    { domain: 'evil.ai', public_key: 'abc', mirror: 'https://sigyl.org' }
+  ]
+  const trust = { block_patterns: ['*.ai'] }
+  const discovered = discoverStrangers(identities, trust)
+
+  assert.equal(discovered['evil.ai'], undefined)
+})
+
+test('discoverStrangers: returns empty when nothing new', () => {
+  const identities = [
+    { domain: 'brine.dev', public_key: 'abc', mirror: 'https://sigyl.org' }
+  ]
+  const trust = { 'brine.dev': 'vouch' }
+  const discovered = discoverStrangers(identities, trust)
+
+  assert.deepEqual(discovered, {})
 })

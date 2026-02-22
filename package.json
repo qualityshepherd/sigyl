@@ -3,7 +3,7 @@
   "author": "brine",
   "version": "0.1.0",
   "type": "module",
-  "description": "Fixing the fediverse's identity problem... with static sites.",
+  "description": "Sigyl is a domain-based trust index for operators who want visibility without surrendering judgment. A lightweight, human-dependent web of trust.",
   "license": "MIT",
   "standard": {
     "env": ["node"]
