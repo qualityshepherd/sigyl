@@ -93,6 +93,8 @@ Everything not listed is ignored.
 git clone https://github.com/qualityshepherd/sigyl
 ```
 
+After each crawl, `crawl.json` is written to your `public/` folder and deployed with your mirror. It's overwritten every run — use git history as your audit trail.
+
 You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
 
 ## GENERATING _YOUR_ KEY
