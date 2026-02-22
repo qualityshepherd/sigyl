@@ -1,3 +1,5 @@
+[![pages](https://github.com/qualityshepherd/sigyl/actions/workflows/page.yml/badge.svg)](https://github.com/qualityshepherd/sigyl/actions/workflows/page.yml)
+
 # SIGYL
 _Small, trusted groups. Domain as collateral. Totally free._
 
