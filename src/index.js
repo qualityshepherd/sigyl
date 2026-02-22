@@ -7,7 +7,7 @@ export function generateIndex (identities, mirrorDomain) {
 
   const list = identities.length
     ? `<ul>\n${items}\n    </ul>`
-    : `<p class="empty">no vouched identities yet</p>`
+    : '<p class="empty">no vouched identities yet</p>'
 
   return `<!DOCTYPE html>
 <html lang="en">

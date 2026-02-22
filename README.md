@@ -58,16 +58,6 @@ Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirro
 - Human vouching doesn't scale for bots — feature, not bug
 - Narrow by design — it refuses to solve everything
 
-## RUN YOUR OWN MIRROR
-
-```
-git clone https://github.com/qualityshepherd/sigyl
-```
-
-Add domains to `seeds.txt`. Vouch them in `trust.json`. Push to GitHub Pages. Free forever except your domain.
-
-You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
-
 ## GENERATING _YOUR_ KEY
 
 Go to `sigyl.org/keygen`. Pick a passphrase — a sentence only you would think of. Your favorite obscure movie quote is perfect.
@@ -75,6 +65,23 @@ Go to `sigyl.org/keygen`. Pick a passphrase — a sentence only you would think 
 Your passphrase is your key. Same sentence → same key → every time → on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
 
 Type it again tomorrow and you'll get the exact same public key.
+
+## RUN YOUR OWN MIRROR
+
+1. Buy a domain (~$10/year). This is your stake. Your mirror lives here.
+2. Fork this repo
+3. Enable GitHub Pages on your fork (Settings → Pages → source: GitHub Actions)
+4. Add a repo variable: Settings → Secrets and variables → Actions → Variables → `MIRROR_DOMAIN` = `yourdomain.com`. This is how the mirror knows its own name.
+5. Generate your key at `sigyl.org/keygen` and publish `identity.json` on your domain
+6. Add your own domain to `seeds.txt` — because your mirror needs to crawl itself to know you exist
+7. Vouch your own domain in `trust.json` — because you trust yourself, and the mirror only indexes vouched domains
+8. Push. The Action runs, your mirror is live.
+
+```
+git clone https://github.com/qualityshepherd/sigyl
+```
+
+You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
 
 ## THE STACK
 
