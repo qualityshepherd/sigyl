@@ -2,5 +2,6 @@
   "sigyl.org": "vouch",
   "brine.dev": "vouch",
   "worldof.brine.dev": "vouch",
-  "shitba.gs": "block"
+  "shitba.gs": "block",
+  "block_patterns": ["*.example.com", "*.spam"]
 }

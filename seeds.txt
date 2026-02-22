@@ -1,4 +1,0 @@
-# add domains here, one per line
-brine.dev
-worldof.brine.dev
-sigyl.org

@@ -38,9 +38,10 @@
       </div>
 
       <div class="section">
-        <div class="label">add to your identity.json</div>
+        <div class="label">save this as identity.json at your domain root</div>
+        <p class="hint">Put this file at <code>yourdomain.com/identity.json</code></p>
         <div class="identity-json" id="identity-json"></div>
-        <button class="copy-btn" id="copy" aria-label="Copy identity.json entry to clipboard">copy</button>
+        <button class="copy-btn" id="copy" aria-label="Copy identity.json to clipboard">copy</button>
         <div class="status" id="copy-status"></div>
       </div>
 
@@ -111,7 +112,7 @@
 
       document.getElementById('pubkey').textContent = publicKey
 
-      const entry = JSON.stringify({ public_key: publicKey, mirror }, null, 2)
+      const entry = JSON.stringify({ identities: [{ public_key: publicKey, mirror }] }, null, 2)
       document.getElementById('identity-json').textContent = entry
 
       document.getElementById('copy').onclick = () => {

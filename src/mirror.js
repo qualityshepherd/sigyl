@@ -1,26 +1,12 @@
 import { promises as fs } from 'fs'
 import { fileURLToPath } from 'url'
-import { parseSeeds, seedToUrl } from './seeds.js'
 import { crawlSeeds } from './crawler.js'
 import { searchIdentities } from './search.js'
-import { syncWithMirrors, seedsApiHandler } from './federation.js'
-import { getStatus, matchesPattern, VOUCH } from './trust.js'
+import { getStatus, matchesPattern, VOUCH, STRANGER } from './trust.js'
 import { generateIndex } from './index.js'
 
-const SEEDS_FILE = './seeds.txt'
 const TRUST_FILE = './trust.json'
 const INDEX_FILE = './public/index.html'
-const BOOTSTRAP_MIRRORS = []
-
-export async function loadSeeds () {
-  try {
-    const content = await fs.readFile(SEEDS_FILE, 'utf-8')
-    return parseSeeds(content)
-  } catch (err) {
-    console.error('Failed to load seeds.txt:', err.message)
-    return []
-  }
-}
 
 export async function loadTrust () {
   try {
@@ -32,14 +18,16 @@ export async function loadTrust () {
 }
 
 export async function main () {
-  const [seeds, trust] = await Promise.all([loadSeeds(), loadTrust()])
+  const trust = await loadTrust()
 
-  const allSeeds = BOOTSTRAP_MIRRORS.length
-    ? await syncWithMirrors(seeds, BOOTSTRAP_MIRRORS)
-    : seeds
+  // Crawl vouched and stranger domains — block and unknown are ignored
+  const domains = Object.entries(trust)
+    .filter(([key, val]) => !key.startsWith('block_patterns') && (val === VOUCH || val === STRANGER))
+    .map(([domain]) => `https://${domain}/identity.json`)
 
-  const urls = allSeeds.map(seedToUrl)
-  const identities = await crawlSeeds(urls)
+  const identities = await crawlSeeds(domains)
+
+  // Only show vouched on the mirror — strangers are watched but not shown
   const vouched = identities.filter(i =>
     getStatus(trust, i.domain) === VOUCH && !matchesPattern(trust, i.domain)
   )
@@ -54,11 +42,9 @@ export async function main () {
     results.forEach(i => console.log(`${i.domain} - ${i.public_key}`))
   }
 
-  return { seeds: allSeeds, identities, vouched }
+  return { identities, vouched }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch(console.error)
 }
-
-export { seedsApiHandler }

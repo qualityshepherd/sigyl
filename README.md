@@ -58,14 +58,6 @@ Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirro
 - Human vouching doesn't scale for bots — feature, not bug
 - Narrow by design — it refuses to solve everything
 
-## GENERATING _YOUR_ KEY
-
-Go to `sigyl.org/keygen`. Pick a passphrase — a sentence only you would think of. Your favorite obscure movie quote is perfect.
-
-Your passphrase is your key. Same sentence → same key → every time → on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
-
-Type it again tomorrow and you'll get the exact same public key.
-
 ## RUN YOUR OWN MIRROR
 
 1. Buy a domain (~$10/year). This is your stake. Your mirror lives here.
@@ -73,8 +65,8 @@ Type it again tomorrow and you'll get the exact same public key.
 3. Enable GitHub Pages on your fork (Settings → Pages → source: GitHub Actions)
 4. Add a repo variable: Settings → Secrets and variables → Actions → Variables → `MIRROR_DOMAIN` = `yourdomain.com`. This is how the mirror knows its own name.
 5. Generate your key at `sigyl.org/keygen` and publish `identity.json` on your domain
-6. Add your own domain to `seeds.txt` — because your mirror needs to crawl itself to know you exist
-7. Vouch your own domain in `trust.json` — because you trust yourself, and the mirror only indexes vouched domains
+6. Add your domain to `trust.json` as vouch — this is both your crawl list and your trust list
+
 8. Push. The Action runs, your mirror is live.
 
 ```
@@ -83,8 +75,37 @@ git clone https://github.com/qualityshepherd/sigyl
 
 You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
 
+## GENERATING _YOUR_ KEY
+
+Go to `sigyl.org/keygen`. Pick a passphrase — a sentence only you would think of. Your favorite obscure movie quote is perfect.
+
+Your passphrase is your key. Same sentence → same key → every time → on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
+
+Type it again tomorrow and you'll get the exact same public key.
+
 ## THE STACK
 
 Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No VC. Humans required.
 
 MIT — brine
+
+## TRUST.JSON
+
+One file does everything. No separate seeds list.
+
+```json
+{
+  "yourdomain.com": "vouch",
+  "afriend.net": "vouch",
+  "watching.org": "stranger",
+  "shitba.gs": "block",
+  "block_patterns": ["*.ai"]
+}
+```
+
+- **vouch** — crawled and shown on your mirror. Your reputation behind them.
+- **stranger** — crawled but not shown. You're watching before you commit.
+- **block** — not crawled, not shown. Done.
+- **block_patterns** — wildcard blocks. `*.ai` blocks every `.ai` domain.
+
+Everything not listed is ignored.
