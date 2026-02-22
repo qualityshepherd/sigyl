@@ -1,4 +1,4 @@
-export function generateIndex (identities, mirrorDomain) {
+export function generateIndex (identities, mirrorDomain, crawledAt) {
   const items = identities.map(identity => `
     <li class="identity">
       <a href="https://${identity.domain}" rel="me">${identity.domain}</a>
@@ -7,7 +7,11 @@ export function generateIndex (identities, mirrorDomain) {
 
   const list = identities.length
     ? `<ul>\n${items}\n    </ul>`
-    : '<p class="empty">no vouched identities yet</p>'
+    : `<p class="empty">no vouched identities yet</p>`
+
+  const crawlLine = crawledAt
+    ? `<span class="crawled">last crawled: ${new Date(crawledAt).toUTCString()} &mdash; <a href="/crawl.json">crawl.json</a></span>`
+    : `<span class="crawled"><a href="/crawl.json">crawl.json</a></span>`
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -29,6 +33,8 @@ export function generateIndex (identities, mirrorDomain) {
     <p>Vouched identities on this mirror.</p>
     ${list}
     <footer>
+      ${crawlLine}
+      <br>
       <a href="/about">sigyl</a> &mdash; MIT license &mdash; <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">source</a>
     </footer>
   </div>

@@ -67,7 +67,7 @@ export async function main () {
   )
 
   const mirrorDomain = process.env.MIRROR_DOMAIN || 'localhost'
-  const html = generateIndex(vouched, mirrorDomain)
+  const html = generateIndex(vouched, mirrorDomain, crawledAt)
 
   const results = domains.map(domain => {
     const found = identities.filter(i => i.domain === domain)
