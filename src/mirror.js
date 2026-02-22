@@ -2,7 +2,7 @@ import { promises as fs } from 'fs'
 import { fileURLToPath } from 'url'
 import { crawlSeeds } from './crawler.js'
 import { searchIdentities } from './search.js'
-import { getStatus, matchesPattern, VOUCH, STRANGER } from './trust.js'
+import { getStatus, matchesPattern, validateTrust, VOUCH, STRANGER } from './trust.js'
 import { generateIndex } from './index.js'
 
 const TRUST_FILE = './trust.json'
@@ -12,14 +12,21 @@ const LOG_FILE = './public/crawl.json'
 export async function loadTrust () {
   try {
     const content = await fs.readFile(TRUST_FILE, 'utf-8')
-    return JSON.parse(content)
-  } catch {
-    return {}
+    const trust = JSON.parse(content)
+    validateTrust(trust)
+    return trust
+  } catch (err) {
+    throw new Error(`trust.json invalid: ${err.message}`)
   }
 }
 
 export async function saveTrust (trust) {
-  await fs.writeFile(TRUST_FILE, JSON.stringify(trust, null, 2), 'utf-8')
+  validateTrust(trust)
+  const content = JSON.stringify(trust, null, 2)
+  await fs.writeFile(TRUST_FILE, content, 'utf-8')
+  // Read back and verify
+  const readBack = JSON.parse(await fs.readFile(TRUST_FILE, 'utf-8'))
+  validateTrust(readBack)
 }
 
 export function discoverStrangers (identities, trust) {
@@ -39,7 +46,6 @@ export async function main () {
   const crawledAt = new Date().toISOString()
   let trust = await loadTrust()
 
-  // Only crawl vouched domains
   const domains = Object.entries(trust)
     .filter(([key, val]) => key !== 'block_patterns' && val === VOUCH)
     .map(([domain]) => domain)
@@ -47,7 +53,6 @@ export async function main () {
   const urls = domains.map(d => `https://${d}/identity.json`)
   const identities = await crawlSeeds(urls)
 
-  // Discover new domains from vouched mirrors and add as strangers
   const discovered = discoverStrangers(identities, trust)
   const newStrangers = Object.keys(discovered)
 
