@@ -9,6 +9,7 @@ on:
 
 jobs:
   test:
+    name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,15 +18,10 @@ jobs:
           node-version: 22
       - run: node --test tests/unit/*.test.js
 
-  deploy:
+  crawl:
+    name: crawl
     needs: test
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,5 +33,17 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public/
+
+  deploy:
+    name: deploy
+    needs: crawl
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - uses: actions/deploy-pages@v4
         id: deployment
