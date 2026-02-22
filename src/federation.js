@@ -1,4 +1,4 @@
-import { validateSeedUrl } from './seeds.js'
+import { validateSeedDomain } from './seeds.js'
 
 async function defaultFetcher (url) {
   const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
@@ -18,7 +18,7 @@ export async function fetchRemoteSeeds (mirrorUrl, fetcher = defaultFetcher) {
 }
 
 export function mergeSeedLists (local, remote) {
-  const validRemote = remote.filter(validateSeedUrl)
+  const validRemote = remote.filter(validateSeedDomain)
   return [...new Set([...local, ...validRemote])]
 }
 

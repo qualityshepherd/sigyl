@@ -17,3 +17,14 @@ export function block (list, domain) {
 export function getStatus (list, domain) {
   return list[domain] || STRANGER
 }
+
+export function matchesPattern (list, domain) {
+  const patterns = list.block_patterns || []
+  return patterns.some(pattern => {
+    if (pattern.startsWith('*.')) {
+      const suffix = pattern.slice(2)
+      return domain.endsWith('.' + suffix)
+    }
+    return domain === pattern
+  })
+}

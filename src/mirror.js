@@ -1,10 +1,10 @@
 import { promises as fs } from 'fs'
 import { fileURLToPath } from 'url'
-import { parseSeeds } from './seeds.js'
+import { parseSeeds, seedToUrl } from './seeds.js'
 import { crawlSeeds } from './crawler.js'
 import { searchIdentities } from './search.js'
 import { syncWithMirrors, seedsApiHandler } from './federation.js'
-import { getStatus, VOUCH } from './trust.js'
+import { getStatus, matchesPattern, VOUCH } from './trust.js'
 import { generateIndex } from './index.js'
 
 const SEEDS_FILE = './seeds.txt'
@@ -38,9 +38,11 @@ export async function main () {
     ? await syncWithMirrors(seeds, BOOTSTRAP_MIRRORS)
     : seeds
 
-  const identities = await crawlSeeds(allSeeds)
-
-  const vouched = identities.filter(i => getStatus(trust, i.domain) === VOUCH)
+  const urls = allSeeds.map(seedToUrl)
+  const identities = await crawlSeeds(urls)
+  const vouched = identities.filter(i =>
+    getStatus(trust, i.domain) === VOUCH && !matchesPattern(trust, i.domain)
+  )
 
   const mirrorDomain = process.env.MIRROR_DOMAIN || 'localhost'
   const html = generateIndex(vouched, mirrorDomain)

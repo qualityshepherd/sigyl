@@ -1,6 +1,6 @@
 import { normalizeIdentity } from './search.js'
 
-const REQUIRED_FIELDS = ['public_key']
+const REQUIRED_FIELDS = ['public_key', 'mirror']
 
 function validateIdentity (identity) {
   return REQUIRED_FIELDS.every(field => identity[field] !== undefined)

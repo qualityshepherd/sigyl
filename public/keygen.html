@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>sigyl / keygen</title>
   <link rel="stylesheet" href="/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -19,24 +18,19 @@
     </header>
 
     <div class="warning">
-      <strong>Your key is generated in this browser. Nothing is sent anywhere.</strong><br>
-      The QR code is your private key. Do not share it. Screenshot it or write down the four words. If you lose it, your admin can issue you a new one.
+      <strong>Your key never leaves this browser.</strong><br>
+      Pick a sentence only you would think of. The weirder and longer, the better. Your favorite obscure movie quote is perfect. "Password" is not.
     </div>
 
-    <button id="generate" aria-label="Generate a new Ed25519 keypair">generate key</button>
+    <div class="section">
+      <label class="label" for="passphrase">your passphrase</label>
+      <input id="passphrase" type="text" placeholder="yeah well that's just like your opinion man" autocomplete="off" spellcheck="false">
+      <label class="label" for="mirror-input">your mirror url</label>
+      <input id="mirror-input" type="url" placeholder="https://sigyl.org" value="https://sigyl.org">
+      <button id="generate" aria-label="Generate keypair from passphrase">generate key</button>
+    </div>
 
     <div class="output" id="output" aria-live="polite">
-
-      <div class="section">
-        <div class="label">your fingerprint</div>
-        <div class="fingerprint" id="fingerprint"></div>
-        <div class="status">read these words aloud to verify your identity</div>
-      </div>
-
-      <div class="section">
-        <div class="label">your key &mdash; do not share this QR</div>
-        <div class="qr-wrap" id="qr" role="img" aria-label="QR code containing your private key"></div>
-      </div>
 
       <div class="section">
         <div class="label">public key</div>
@@ -46,7 +40,7 @@
       <div class="section">
         <div class="label">add to your identity.json</div>
         <div class="identity-json" id="identity-json"></div>
-        <button class="copy-btn" id="copy" aria-label="Copy identity.json to clipboard">copy</button>
+        <button class="copy-btn" id="copy" aria-label="Copy identity.json entry to clipboard">copy</button>
         <div class="status" id="copy-status"></div>
       </div>
 
@@ -54,71 +48,74 @@
   </div>
 
   <script>
-    const WORDS = [
-      'wolf', 'table', 'seven', 'rain', 'stone', 'ember', 'north', 'glass',
-      'river', 'smoke', 'salt', 'iron', 'crow', 'amber', 'frost', 'lantern',
-      'tide', 'cedar', 'flint', 'marsh', 'hollow', 'peak', 'wren', 'cobalt',
-      'dusk', 'raven', 'chalk', 'forge', 'vale', 'sparrow', 'ash', 'copper',
-      'ridge', 'gale', 'moss', 'horn', 'fern', 'slate', 'birch', 'anchor',
-      'thorn', 'heron', 'drift', 'crag', 'veil', 'ember', 'wick', 'spire',
-      'bay', 'bluff', 'brook', 'burr', 'cairn', 'cleft', 'coil', 'crest',
-      'dell', 'drew', 'dune', 'fell', 'fen', 'ford', 'glade', 'glen'
-    ]
-
-    async function sha256 (str) {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
-    }
-
-    async function publicKeyToWords (pubKeyB64) {
-      const hash = await sha256(pubKeyB64)
-      return [0, 8, 16, 24]
-        .map(offset => parseInt(hash.slice(offset, offset + 8), 16) % WORDS.length)
-        .map(i => WORDS[i])
-        .join(' ')
-    }
-
     function toBase64 (buf) {
       return btoa(String.fromCharCode(...new Uint8Array(buf)))
     }
 
+    async function passphraseToKeyPair (passphrase) {
+      const enc = new TextEncoder()
+
+      // Import passphrase as key material for PBKDF2
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(passphrase),
+        'PBKDF2',
+        false,
+        ['deriveBits']
+      )
+
+      // Derive 32 bytes — deterministic, slow to brute force
+      const bits = await crypto.subtle.deriveBits(
+        {
+          name: 'PBKDF2',
+          hash: 'SHA-256',
+          salt: enc.encode('sigyl'),
+          iterations: 100000
+        },
+        keyMaterial,
+        256
+      )
+
+      // Use derived bytes as HMAC key to sign a fixed message
+      // giving us a deterministic public key from the passphrase
+      const hmacKey = await crypto.subtle.importKey(
+        'raw',
+        bits,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      )
+
+      const signature = await crypto.subtle.sign(
+        'HMAC',
+        hmacKey,
+        enc.encode('sigyl-public-key-v1')
+      )
+
+      return toBase64(signature)
+    }
+
     async function generate () {
+      const passphrase = document.getElementById('passphrase').value.trim()
+      if (!passphrase) {
+        document.getElementById('passphrase').focus()
+        return
+      }
+
       const btn = document.getElementById('generate')
       btn.disabled = true
       btn.textContent = 'generating...'
 
-      const keypair = await crypto.subtle.generateKey(
-        { name: 'Ed25519' },
-        true,
-        ['sign', 'verify']
-      )
+      const mirror = document.getElementById('mirror-input').value || 'https://sigyl.org'
+      const publicKey = await passphraseToKeyPair(passphrase)
 
-      const pubKeyBuf = await crypto.subtle.exportKey('spki', keypair.publicKey)
-      const privKeyBuf = await crypto.subtle.exportKey('pkcs8', keypair.privateKey)
+      document.getElementById('pubkey').textContent = publicKey
 
-      const pubKeyB64 = toBase64(pubKeyBuf)
-      const privKeyB64 = toBase64(privKeyBuf)
-
-      const fingerprint = await publicKeyToWords(pubKeyB64)
-
-      document.getElementById('fingerprint').textContent = fingerprint
-
-      document.getElementById('qr').innerHTML = ''
-      new QRCode(document.getElementById('qr'), {
-        text: privKeyB64,
-        width: 200,
-        height: 200,
-        colorDark: '#000000',
-        colorLight: '#ffffff'
-      })
-
-      document.getElementById('pubkey').textContent = pubKeyB64
-
-      const json = JSON.stringify({ identities: [{ public_key: pubKeyB64 }] }, null, 2)
-      document.getElementById('identity-json').textContent = json
+      const entry = JSON.stringify({ public_key: publicKey, mirror }, null, 2)
+      document.getElementById('identity-json').textContent = entry
 
       document.getElementById('copy').onclick = () => {
-        navigator.clipboard.writeText(json).then(() => {
+        navigator.clipboard.writeText(entry).then(() => {
           document.getElementById('copy-status').textContent = 'copied'
           setTimeout(() => { document.getElementById('copy-status').textContent = '' }, 2000)
         })
@@ -130,6 +127,10 @@
     }
 
     document.getElementById('generate').addEventListener('click', generate)
+
+    document.getElementById('passphrase').addEventListener('keydown', e => {
+      if (e.key === 'Enter') generate()
+    })
   </script>
 </body>
 </html>

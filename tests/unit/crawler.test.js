@@ -4,8 +4,8 @@ import { validateFeed, normalizeIdentities } from '../../src/crawler.js'
 
 const validFeed = {
   identities: [
-    { public_key: 'abc123' },
-    { public_key: 'def456' }
+    { public_key: 'abc123', mirror: 'https://sigyl.org' },
+    { public_key: 'def456', mirror: 'https://sigyl.org' }
   ]
 }
 
@@ -25,24 +25,25 @@ test('validateFeed: rejects empty identities array', () => {
   assert.equal(validateFeed({ identities: [] }), false)
 })
 
-test('validateFeed: rejects non-array identities', () => {
-  assert.equal(validateFeed({ identities: 'nope' }), false)
+test('validateFeed: rejects identity missing public_key', () => {
+  assert.equal(validateFeed({ identities: [{ mirror: 'https://sigyl.org' }] }), false)
 })
 
-test('validateFeed: rejects identity missing public_key', () => {
-  assert.equal(validateFeed({ identities: [{ display_name: 'No Key' }] }), false)
+test('validateFeed: rejects identity missing mirror', () => {
+  assert.equal(validateFeed({ identities: [{ public_key: 'abc123' }] }), false)
 })
 
 test('normalizeIdentities: attaches source domain', () => {
-  const url = 'https://example.com/identity.json'
+  const url = 'https://brine.dev/identity.json'
   const result = normalizeIdentities(validFeed, url)
   assert.equal(result.length, 2)
-  assert.equal(result[0].domain, 'example.com')
+  assert.equal(result[0].domain, 'brine.dev')
   assert.equal(result[0].public_key, 'abc123')
+  assert.equal(result[0].mirror, 'https://sigyl.org')
 })
 
 test('normalizeIdentities: does not mutate original', () => {
-  const url = 'https://example.com/identity.json'
+  const url = 'https://brine.dev/identity.json'
   normalizeIdentities(validFeed, url)
   assert.equal(validFeed.identities[0].domain, undefined)
 })

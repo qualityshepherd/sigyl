@@ -1,20 +1,12 @@
-import { publicKeyToWords } from './words.js'
-
-function renderIdentity (identity) {
-  const fingerprint = publicKeyToWords(identity.public_key)
-  const domain = identity.domain
-
-  return `
-    <li class="identity">
-      <a href="https://${domain}" rel="me">${domain}</a>
-      <span class="check">&#10003;</span>
-      <code class="fingerprint">${fingerprint}</code>
-    </li>`
-}
-
 export function generateIndex (identities, mirrorDomain) {
+  const items = identities.map(identity => `
+    <li class="identity">
+      <a href="https://${identity.domain}" rel="me">${identity.domain}</a>
+      <span class="check">&#10003;</span>
+    </li>`).join('\n')
+
   const list = identities.length
-    ? `<ul>\n${identities.map(renderIdentity).join('\n')}\n    </ul>`
+    ? `<ul>\n${items}\n    </ul>`
     : `<p class="empty">no vouched identities yet</p>`
 
   return `<!DOCTYPE html>

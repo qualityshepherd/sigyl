@@ -1,2 +1,4 @@
-# add identity.json urls here, one per line
-https://brine.dev/identity.json
+# add domains here, one per line
+brine.dev
+worldof.brine.dev
+sigyl.org

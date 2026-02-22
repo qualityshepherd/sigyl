@@ -1,6 +1,5 @@
 # Sigyl
-
-*Small, trusted groups. Domain as collateral. Totally free.*
+_Small, trusted groups. Domain as collateral. Totally free._
 
 ## What it is
 
@@ -67,8 +66,12 @@ git clone https://github.com/qualityshepherd/sigyl
 
 Add domains to `seeds.txt`. Vouch them in `trust.json`. Push to GitHub Pages. Free forever except your domain.
 
-You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5-20 people. That's not a limitation — that's the architecture working.
+You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
 
 ## The stack
 
 Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No VC. Humans required.
+
+## License
+
+MIT — brine

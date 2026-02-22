@@ -1,9 +1,11 @@
-export function validateSeedUrl (url) {
-  if (!url || typeof url !== 'string') return false
+export function validateSeedDomain (domain) {
+  if (!domain || typeof domain !== 'string') return false
+  if (domain.includes('/') || domain.includes(':')) return false
+  if (!domain.includes('.')) return false
 
   try {
-    const parsed = new URL(url)
-    return parsed.protocol === 'https:' && url.endsWith('/identity.json')
+    const parsed = new URL(`https://${domain}`)
+    return parsed.hostname === domain
   } catch {
     return false
   }
@@ -12,11 +14,15 @@ export function validateSeedUrl (url) {
 export function parseSeeds (content) {
   if (!content) return []
 
-  const urls = content
+  const domains = content
     .split('\n')
     .map(line => line.trim())
     .filter(line => line && !line.startsWith('#'))
-    .filter(validateSeedUrl)
+    .filter(validateSeedDomain)
 
-  return [...new Set(urls)]
+  return [...new Set(domains)]
+}
+
+export function seedToUrl (domain) {
+  return `https://${domain}/identity.json`
 }
