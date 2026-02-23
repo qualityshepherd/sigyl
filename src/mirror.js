@@ -50,7 +50,7 @@ export async function main () {
     .filter(([key, val]) => key !== 'block_patterns' && val === VOUCH)
     .map(([domain]) => domain)
 
-  const urls = domains.map(d => `https://${d}/identity.json`)
+  const urls = domains.map(d => `https://${d}/sigyl.json`)
   const identities = await crawlSeeds(urls)
 
   const discovered = discoverStrangers(identities, trust)

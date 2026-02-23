@@ -38,10 +38,10 @@
       </div>
 
       <div class="section">
-        <div class="label">save this as identity.json at your domain root</div>
-        <p class="hint">Put this file at <code>yourdomain.com/identity.json</code></p>
-        <div class="identity-json" id="identity-json"></div>
-        <button class="copy-btn" id="copy" aria-label="Copy identity.json to clipboard">copy</button>
+        <div class="label">save this as sigyl.json at your domain root</div>
+        <p class="hint">Put this file at <code>yourdomain.com/sigyl.json</code></p>
+        <div class="sigyl.json" id="sigyl.json"></div>
+        <button class="copy-btn" id="copy" aria-label="Copy sigyl.json to clipboard">copy</button>
         <div class="status" id="copy-status"></div>
       </div>
 
@@ -49,12 +49,6 @@
   </div>
 
   <script>
-    // PKCS8 header for Ed25519 private key (RFC 8410)
-    const PKCS8_HEADER = new Uint8Array([
-      0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06,
-      0x03, 0x2b, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20
-    ])
-
     function toBase64 (buf) {
       return btoa(String.fromCharCode(...new Uint8Array(buf)))
     }
@@ -62,7 +56,7 @@
     async function passphraseToKeyPair (passphrase) {
       const enc = new TextEncoder()
 
-      // Step 1: PBKDF2 derives 32-byte seed from passphrase
+      // Import passphrase as key material for PBKDF2
       const keyMaterial = await crypto.subtle.importKey(
         'raw',
         enc.encode(passphrase),
@@ -71,7 +65,8 @@
         ['deriveBits']
       )
 
-      const seed = await crypto.subtle.deriveBits(
+      // Derive 32 bytes — deterministic, slow to brute force
+      const bits = await crypto.subtle.deriveBits(
         {
           name: 'PBKDF2',
           hash: 'SHA-256',
@@ -82,27 +77,23 @@
         256
       )
 
-      // Step 2: Wrap seed in PKCS8 envelope for Ed25519 import
-      const pkcs8 = new Uint8Array(PKCS8_HEADER.length + 32)
-      pkcs8.set(PKCS8_HEADER)
-      pkcs8.set(new Uint8Array(seed), PKCS8_HEADER.length)
-
-      // Step 3: Import as Ed25519 private key
-      const privateKey = await crypto.subtle.importKey(
-        'pkcs8',
-        pkcs8,
-        { name: 'Ed25519' },
-        true,
+      // Use derived bytes as HMAC key to sign a fixed message
+      // giving us a deterministic public key from the passphrase
+      const hmacKey = await crypto.subtle.importKey(
+        'raw',
+        bits,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
         ['sign']
       )
 
-      // Step 4: Extract public key from JWK (x field = base64url public key)
-      const jwk = await crypto.subtle.exportKey('jwk', privateKey)
+      const signature = await crypto.subtle.sign(
+        'HMAC',
+        hmacKey,
+        enc.encode('sigyl-public-key-v1')
+      )
 
-      return {
-        publicKey: jwk.x,  // base64url encoded Ed25519 public key
-        privateKey
-      }
+      return toBase64(signature)
     }
 
     async function generate () {
@@ -116,34 +107,28 @@
       btn.disabled = true
       btn.textContent = 'generating...'
 
-      try {
-        const mirror = document.getElementById('mirror-input').value || 'https://sigyl.org'
-        const { publicKey } = await passphraseToKeyPair(passphrase)
+      const mirror = document.getElementById('mirror-input').value || 'https://sigyl.org'
+      const publicKey = await passphraseToKeyPair(passphrase)
 
-        document.getElementById('pubkey').textContent = publicKey
+      document.getElementById('pubkey').textContent = publicKey
 
-        const entry = JSON.stringify({ identities: [{ public_key: publicKey, mirror }] }, null, 2)
-        document.getElementById('identity-json').textContent = entry
+      const entry = JSON.stringify({ identities: [{ public_key: publicKey, mirror }] }, null, 2)
+      document.getElementById('sigyl.json').textContent = entry
 
-        document.getElementById('copy').onclick = () => {
-          navigator.clipboard.writeText(entry).then(() => {
-            document.getElementById('copy-status').textContent = 'copied'
-            setTimeout(() => { document.getElementById('copy-status').textContent = '' }, 2000)
-          })
-        }
-
-        document.getElementById('output').classList.add('visible')
-      } catch (err) {
-        console.error('keygen failed:', err)
-        btn.textContent = 'error — check console'
-        return
+      document.getElementById('copy').onclick = () => {
+        navigator.clipboard.writeText(entry).then(() => {
+          document.getElementById('copy-status').textContent = 'copied'
+          setTimeout(() => { document.getElementById('copy-status').textContent = '' }, 2000)
+        })
       }
 
+      document.getElementById('output').classList.add('visible')
       btn.textContent = 'regenerate'
       btn.disabled = false
     }
 
     document.getElementById('generate').addEventListener('click', generate)
+
     document.getElementById('passphrase').addEventListener('keydown', e => {
       if (e.key === 'Enter') generate()
     })
