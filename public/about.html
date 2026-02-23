@@ -7,63 +7,50 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a href="/">&larr; sigyl.org</a>
-      <h1><span>sigyl /</span> about</h1>
-      <nav>
-        <a href="/about">about</a>
-        <a href="/keygen">keygen</a>
-      </nav>
-    </header>
+<main class="wrap">
+  <header>
+    <a href="/">&larr; sigyl.org</a>
+    <h1><span>sigyl /</span> about</h1>
+    <nav>
+      <a href="/">mirror</a>
+      <a href="/keygen">keygen</a>
+    </nav>
+  </header>
 
-    <div class="section">
-      <h2>what is this</h2>
-      <p>A lightweight, human-dependent web of trust. You publish a small JSON file on a domain you own. A human who knows you vouches for it on their mirror. That's it.</p>
-      <p>No servers. No database. No blockchain. No algorithm. <strong>Humans required.</strong></p>
-    </div>
+  <h2>what is this</h2>
+  A lightweight, human-dependent web of trust. Publish a JSON file on a domain you own. A human who knows you vouches for it on their mirror. That's it.
+  <p>
+  No servers. No database. No blockchain. No algorithm. <strong>Humans required.</strong>
 
-    <hr class="rule">
+  <h2>why it works</h2>
+  <strong>Domain as collateral.</strong> Your domain has your name on it. You control what goes there. Nobody can fake that without controlling your DNS. "I swear on my domain" is the stake.
+  <p>
+  <strong>Human vouching.</strong> You don't get on a mirror by signing up. Someone who knows you adds you. That's the spam filter, the moderation layer, and the bot defense — all in one.
+  <p>
+  <strong>No platform.</strong> Your identity lives on your domain. If this mirror disappears, your file is still there. Nobody can take it.
 
-    <div class="section">
-      <h2>why it works</h2>
-      <p><strong>Domain as collateral.</strong> A domain costs $10/year. It has your name on it. You control what goes there. Nobody can fake that without controlling your DNS. "I swear on my domain" is the stake.</p>
-      <p><strong>Human vouching.</strong> You don't get on a mirror by signing up. Someone who knows you adds you. That's the spam filter, the moderation layer, and the bot defense — all in one.</p>
-      <p><strong>No platform.</strong> Your identity lives on your domain. If this mirror disappears, your file is still there. Nobody can take it away.</p>
-    </div>
+  <h2>how to get on this mirror</h2>
+  <strong>1.</strong> Generate your key at <a href="/keygen">sigyl.org/keygen</a>. Happens in your browser. Nothing is sent anywhere.
+  <p>
+  <strong>2.</strong> Publish the file it gives you at <code>yourdomain.com/sigyl.json</code>. Any static host works — GitHub Pages, Cloudflare Pages, Netlify. All free.
+  <pre class="json">{
+  "public_key": "your-key-here",
+  "mirror": "https://sigyl.org"
+}</pre>
+  <strong>3.</strong> Reach out to the admin. They know you, they vouch you, next crawl you're on the list.
 
-    <hr class="rule">
+  <h2>run your own mirror</h2>
+  One GitHub repo. GitHub Pages for hosting. $10/year for the domain. Everything else is free.
+  <p>
+  You decide who's on it. You vouch for them with your domain and reputation. If you vouch for bad actors, other mirrors stop trusting yours. Accountability is human and local.
+  <p>
+  Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
+  <p>
+  <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">github.com/qualityshepherd/sigyl</a>
 
-    <div class="section">
-      <h2>how to get on this mirror</h2>
-      <p><strong>1.</strong> Generate your key at <a href="/keygen">sigyl.org/keygen</a>. Happens in your browser. Nothing is sent anywhere.</p>
-      <p><strong>2.</strong> Publish the file it gives you at <code>yourdomain.com/sigyl.json</code>. Any static host works — GitHub Pages, Cloudflare Pages, Netlify. All free.</p>
-      <div class="json">{
-  "identities": [
-    {
-      "public_key": "your-key-here",
-      "mirror": "https://sigyl.org"
-    }
-  ]
-}</div>
-      <p><strong>3.</strong> Reach out to the admin of this mirror. They know you, they vouch you, next crawl you're on the list.</p>
-    </div>
-
-    <hr class="rule">
-
-    <div class="section">
-      <h2>run your own mirror</h2>
-      <p>Running a mirror makes you an admin. Not a title anyone gives you — just a person who runs a list of people they trust.</p>
-      <p>You decide who's on it. You vouch for them with your domain and reputation. If you vouch for bad actors, other mirrors stop trusting yours. The accountability is human and local.</p>
-      <p>One GitHub repo. GitHub Pages for hosting. Costs $10/year for the domain. Everything else is free. Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.</p>
-      <p>The people you add are your responsibility. Same reason you don't let strangers into your home — not because of a policy, because you live there.</p>
-      <p><a href="https://github.com/qualityshepherd/sigyl" rel="noopener">github.com/qualityshepherd/sigyl</a></p>
-    </div>
-
-    <footer>
-      <a href="/">sigyl.org</a> &mdash; MIT license &mdash; <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">source</a>
-    </footer>
-
-  </div>
+  <footer>
+    <a href="/">sigyl.org</a> &mdash; MIT license &mdash; <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">source</a>
+  </footer>
+</main>
 </body>
 </html>

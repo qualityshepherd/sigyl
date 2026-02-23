@@ -12,6 +12,7 @@
   "scripts": {
     "start": "node src/mirror.js",
     "test": "node --test tests/unit/*.test.js",
+    "server": "npx http-server public -s -p 4242",
     "pretty": "npx standard --fix"
   }
 }

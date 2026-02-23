@@ -7,131 +7,114 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a href="/">&larr; sigyl.org</a>
-      <h1><span>sigyl /</span> keygen</h1>
-      <nav>
-        <a href="/about">about</a>
-        <a href="/keygen">keygen</a>
-      </nav>
-    </header>
+<main class="wrap">
+  <header>
+    <a href="/">&larr; sigyl.org</a>
+    <h1><span>sigyl /</span> keygen</h1>
+    <nav>
+      <a href="/">mirror</a>
+      <a href="/keygen">keygen</a>
+    </nav>
+  </header>
 
-    <div class="warning">
-      <strong>Your key never leaves this browser.</strong><br>
-      Pick a sentence only you would think of. The weirder and longer, the better. Your favorite obscure movie quote is perfect. "Password" is not.
-    </div>
+  <span class="warning">
+    <strong>Your key never leaves this browser.</strong><br>
+    Pick a sentence only you would think of. The weirder and longer, the better. Your favorite obscure movie quote is perfect. "Password" is not.
+  </span>
 
-    <div class="section">
-      <label class="label" for="passphrase">your passphrase</label>
-      <input id="passphrase" type="text" placeholder="yeah well that's just like your opinion man" autocomplete="off" spellcheck="false">
-      <label class="label" for="mirror-input">your mirror url</label>
-      <input id="mirror-input" type="url" placeholder="https://sigyl.org" value="https://sigyl.org">
-      <button id="generate" aria-label="Generate keypair from passphrase">generate key</button>
-    </div>
+  <label class="label" for="passphrase">your passphrase</label>
+  <input id="passphrase" type="text" placeholder="yeah well that's just like your opinion man" autocomplete="off" spellcheck="false">
 
-    <div class="output" id="output" aria-live="polite">
+  <label class="label" for="mirror-input">your mirror url</label>
+  <input id="mirror-input" type="url" placeholder="https://sigyl.org" value="https://sigyl.org">
 
-      <div class="section">
-        <div class="label">public key</div>
-        <div class="pubkey" id="pubkey"></div>
-      </div>
+  <button id="generate">generate key</button>
 
-      <div class="section">
-        <div class="label">save this as sigyl.json at your domain root</div>
-        <p class="hint">Put this file at <code>yourdomain.com/sigyl.json</code></p>
-        <div class="sigyl.json" id="sigyl.json"></div>
-        <button class="copy-btn" id="copy" aria-label="Copy sigyl.json to clipboard">copy</button>
-        <div class="status" id="copy-status"></div>
-      </div>
+  <section id="output" class="output" aria-live="polite">
+    <span class="label">public key</span>
+    <pre class="pubkey" id="pubkey"></pre>
 
-    </div>
-  </div>
+    <span class="label">save as sigyl.json at your domain root</span>
+    <span class="hint">Put this file at <code>yourdomain.com/sigyl.json</code></span>
+    <pre class="sigyl-json" id="sigyl-json"></pre>
+    <button class="copy-btn" id="copy">copy</button>
+    <span class="status" id="copy-status"></span>
+  </section>
 
-  <script>
-    function toBase64 (buf) {
-      return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    }
+  <footer>
+    <a href="/about">sigyl</a> &mdash; MIT license &mdash; <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">source</a>
+  </footer>
+</main>
 
-    async function passphraseToKeyPair (passphrase) {
-      const enc = new TextEncoder()
+<script>
+  // PKCS8 header for Ed25519 private key (RFC 8410)
+  const PKCS8_HEADER = new Uint8Array([
+    0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06,
+    0x03, 0x2b, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20
+  ])
 
-      // Import passphrase as key material for PBKDF2
-      const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        enc.encode(passphrase),
-        'PBKDF2',
-        false,
-        ['deriveBits']
-      )
+  async function passphraseToPublicKey (passphrase) {
+    const enc = new TextEncoder()
 
-      // Derive 32 bytes — deterministic, slow to brute force
-      const bits = await crypto.subtle.deriveBits(
-        {
-          name: 'PBKDF2',
-          hash: 'SHA-256',
-          salt: enc.encode('sigyl'),
-          iterations: 100000
-        },
-        keyMaterial,
-        256
-      )
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveBits']
+    )
 
-      // Use derived bytes as HMAC key to sign a fixed message
-      // giving us a deterministic public key from the passphrase
-      const hmacKey = await crypto.subtle.importKey(
-        'raw',
-        bits,
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-      )
+    const seed = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode('sigyl'), iterations: 100000 },
+      keyMaterial, 256
+    )
 
-      const signature = await crypto.subtle.sign(
-        'HMAC',
-        hmacKey,
-        enc.encode('sigyl-public-key-v1')
-      )
+    const pkcs8 = new Uint8Array(PKCS8_HEADER.length + 32)
+    pkcs8.set(PKCS8_HEADER)
+    pkcs8.set(new Uint8Array(seed), PKCS8_HEADER.length)
 
-      return toBase64(signature)
-    }
+    const privateKey = await crypto.subtle.importKey(
+      'pkcs8', pkcs8, { name: 'Ed25519' }, true, ['sign']
+    )
 
-    async function generate () {
-      const passphrase = document.getElementById('passphrase').value.trim()
-      if (!passphrase) {
-        document.getElementById('passphrase').focus()
-        return
-      }
+    const jwk = await crypto.subtle.exportKey('jwk', privateKey)
+    return jwk.x // base64url Ed25519 public key
+  }
 
-      const btn = document.getElementById('generate')
-      btn.disabled = true
-      btn.textContent = 'generating...'
+  async function generate () {
+    const passphrase = document.getElementById('passphrase').value.trim()
+    if (!passphrase) return document.getElementById('passphrase').focus()
 
+    const btn = document.getElementById('generate')
+    btn.disabled = true
+    btn.textContent = 'generating...'
+
+    try {
       const mirror = document.getElementById('mirror-input').value || 'https://sigyl.org'
-      const publicKey = await passphraseToKeyPair(passphrase)
+      const publicKey = await passphraseToPublicKey(passphrase)
+      const json = JSON.stringify({ public_key: publicKey, mirror }, null, 2)
 
       document.getElementById('pubkey').textContent = publicKey
-
-      const entry = JSON.stringify({ identities: [{ public_key: publicKey, mirror }] }, null, 2)
-      document.getElementById('sigyl.json').textContent = entry
+      document.getElementById('sigyl-json').textContent = json
+      document.getElementById('output').classList.add('visible')
 
       document.getElementById('copy').onclick = () => {
-        navigator.clipboard.writeText(entry).then(() => {
+        navigator.clipboard.writeText(json).then(() => {
           document.getElementById('copy-status').textContent = 'copied'
           setTimeout(() => { document.getElementById('copy-status').textContent = '' }, 2000)
         })
       }
 
-      document.getElementById('output').classList.add('visible')
       btn.textContent = 'regenerate'
-      btn.disabled = false
+    } catch (err) {
+      console.error('keygen failed:', err)
+      btn.textContent = 'error — check console'
+      return
     }
 
-    document.getElementById('generate').addEventListener('click', generate)
+    btn.disabled = false
+  }
 
-    document.getElementById('passphrase').addEventListener('keydown', e => {
-      if (e.key === 'Enter') generate()
-    })
-  </script>
+  document.getElementById('generate').addEventListener('click', generate)
+  document.getElementById('passphrase').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generate()
+  })
+</script>
 </body>
 </html>
