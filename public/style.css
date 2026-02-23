@@ -200,9 +200,7 @@ ul {
   list-style: none;
   padding: 0;
 }
-.identity {
-  padding: 0.75rem 0;
-}
+
 .identity a {
   font-weight: bold;
   text-decoration: none;
@@ -216,7 +214,6 @@ ul {
 }
 
 footer {
-  padding-top: 1.25rem;
   margin-top: 3rem;
   color: var(--dim);
 }
