@@ -1,3 +1,0 @@
-# example seeds
-https://alice.com/identity.json
-https://bob.org/identity.json
