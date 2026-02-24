@@ -26,7 +26,8 @@ export function generateIndex (identities, mirrorDomain, crawledAt) {
   <header>
     <h1>${mirrorDomain}</h1>
     <nav>
-      <a href="/about">about</a>
+      <a href="/why">why</a>
+        <a href="/about">about</a>
       <a href="/keygen">keygen</a>
     </nav>
   </header>

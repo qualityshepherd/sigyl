@@ -5,7 +5,7 @@ _Small, trusted groups. Domain as collateral. Humans required. Totally free._
 
 ## WHAT IT IS
 
-**Sigyl** is a domain-based trust index for operators who want visibility without surrendering judgment. Publish a file on a domain you own. Get vouched by a human who knows you. That's it.
+**Sigyl** is a domain-based trust index for operators who want visibility without surrendering judgment. Publish a file on a domain you own. Get vouched by a human who knows you. That's it. Math that turns "Hey, careful man, there's a beverage here" into an identity. 
 
 No servers. No database. No blockchain. No algorithm. **_Humans required_**.
 
