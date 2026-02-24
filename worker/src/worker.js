@@ -208,21 +208,14 @@ function adminPage (trust, mirrorDomain, token) {
     .filter(([k, v]) => k !== 'block_patterns' && v === STRANGER)
 
   const rows = strangers.map(([domain]) => `
-    <tr>
-      <td><a href="https://${domain}" target="_blank">${domain}</a></td>
-      <td>
-        <form method="POST" action="/admin/trust?token=${token}" style="display:inline">
-          <input type="hidden" name="domain" value="${domain}">
-          <input type="hidden" name="state" value="vouch">
-          <button type="submit">vouch</button>
-        </form>
-        <form method="POST" action="/admin/trust?token=${token}" style="display:inline">
-          <input type="hidden" name="domain" value="${domain}">
-          <input type="hidden" name="state" value="block">
-          <button type="submit">block</button>
-        </form>
-      </td>
-    </tr>`).join('\n')
+    <div class="stranger-row">
+      <a href="https://${domain}" target="_blank">${domain}</a>
+      <span class="actions">
+        <a class="action-link" href="/admin/trust?token=${token}&domain=${domain}&state=vouch">vouch</a>
+        &middot;
+        <a class="action-link" href="/admin/trust?token=${token}&domain=${domain}&state=block">block</a>
+      </span>
+    </div>`).join('\n')
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -231,6 +224,12 @@ function adminPage (trust, mirrorDomain, token) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>sigyl / admin</title>
   <link rel="stylesheet" href="/style.css">
+  <style>
+    .stranger-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.4rem 0; }
+    .actions { white-space: nowrap; }
+    .action-link { background: none; border: none; color: var(--bright); font: inherit; cursor: pointer; padding: 0; }
+    .action-link:hover { color: var(--orange); }
+  </style>
 </head>
 <body>
 <main class="wrap">
@@ -239,7 +238,7 @@ function adminPage (trust, mirrorDomain, token) {
     <h1><span>sigyl /</span> admin</h1>
   </header>
   ${strangers.length
-    ? `<table><tbody>${rows}</tbody></table>`
+    ? `<div class="strangers">${rows}</div>`
     : `<span class="empty">no strangers waiting</span>`
   }
 </main>
@@ -260,6 +259,16 @@ async function handleRequest (request, env) {
     return new Response(html, { headers: { 'content-type': 'text/html;charset=utf-8' } })
   }
 
+  // temp debug route
+  if (url.pathname === '/crawl-now' && url.searchParams.get('token') === token) {
+    try {
+      const log = await runCrawl(env)
+      return new Response(JSON.stringify(log, null, 2), { headers: { 'content-type': 'application/json' } })
+    } catch (err) {
+      return new Response(err.message + '\n' + err.stack, { status: 500 })
+    }
+  }
+
   if (url.pathname === '/crawl.json') {
     const json = await kv.get('crawl.json')
     if (!json) return new Response('{}', { headers: { 'content-type': 'application/json' } })
@@ -276,17 +285,16 @@ async function handleRequest (request, env) {
       return new Response('unauthorized', { status: 401 })
     }
 
-    if (request.method === 'POST' && url.pathname === '/admin/trust') {
-      const body = await request.formData()
-      const domain = body.get('domain')
-      const state = body.get('state')
+    if (url.pathname === '/admin/trust') {
+      const domain = url.searchParams.get('domain')
+      const state = url.searchParams.get('state')
       if (!domain || !['vouch', 'block'].includes(state)) {
         return new Response('bad request', { status: 400 })
       }
       const trust = await loadTrust(kv)
       trust[domain] = state
       await saveTrust(kv, trust)
-      return Response.redirect(`/admin?token=${token}`, 302)
+      return Response.redirect(`https://${env.MIRROR_DOMAIN}/admin?token=${token}`, 302)
     }
 
     const trust = await loadTrust(kv)
