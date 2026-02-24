@@ -5,9 +5,13 @@ _Small, trusted groups. Domain as collateral. Humans required. Totally free._
 
 ## WHAT IT IS
 
-**Sigyl** is a domain-based trust index for operators who want visibility without surrendering judgment. Publish a file on a domain you own. Get vouched by a human who knows you. That's it. Math that turns "Hey, careful man, there's a beverage here" into an identity. 
+A lightweight, human-dependent web of trust. Publish a JSON file on a domain you own. A human who knows you vouches for it on their mirror. That's it.
 
-No servers. No database. No blockchain. No algorithm. **_Humans required_**.
+No servers. No database. No blockchain. No algorithm. **Humans required.**
+
+Every other interest graph on the web was extracted from behavior. This one is declared through relationship. The graph doesn't describe what people consume. It describes who people trust.
+
+WebRing 2.0 that brings back Web 1.0
 
 ## HOW IT WORKS
 
@@ -20,21 +24,21 @@ Publish this at `yourdomain.com/sigyl.json`:
 }
 ```
 
-A mirror is run by a human who `vouches` for other humans and stakes their own domain and reputation. The mirror's `trust.json` is the only thing that decides who exists on the network and it's written by a human mirror admin. 
+A mirror is run by a human who vouches for other humans and stakes their own domain and reputation. The mirror's `trust.json` is the only thing that decides who exists on the network. It's written by a human mirror admin.
 
 Three states:
 
-- **Vouch** — I know this person. My domain is behind them.
-- **Block** — I don't trust this domain.
-- **Stranger** — Discovered through vouched mirrors. Not vouched. Not crawled.
+- **Vouch** -- I know this person. My domain is behind them.
+- **Block** -- I don't trust this domain.
+- **Stranger** -- Discovered through vouched mirrors. Not vouched. Not crawled.
 
 No appeals process. No committee. Just humans making decisions about humans, with skin in the game.
 
 ## YOUR DOMAIN IS YOUR STAKE
 
-To prove domain ownership add `yourdomain.com/sigyl.json` in your root directory. Not a subdirectory. Not a subdomain. Root folder. This is your identity. 
+`yourdomain.com/sigyl.json` -- root only. Not a subdirectory. Not a subdomain. The file at the root proves you control the domain. That's the claim.
 
-Your domain is your reputation. That's the stake. The cost of the domain is just enough friction to make bad faith expensive.
+Your domain is your reputation. The cost is just enough friction to make bad faith expensive.
 
 ## WHAT IT'S GOOD FOR
 
@@ -57,7 +61,7 @@ Sigyl is an identity, not an identity provider. It doesn't issue credentials, it
 
 ## WHY NOT PGP?
 
-[PGP tried this](https://en.wikipedia.org/wiki/Web_of_trust). It failed — not cryptographically, but socially. Key-signing parties, expiring keys, tooling nobody used. Trust rotted because there was no stake.
+[PGP tried this](https://en.wikipedia.org/wiki/Web_of_trust). It failed -- not cryptographically, but socially. Key-signing parties, expiring keys, tooling nobody used. Trust rotted because there was no stake.
 
 Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirror, your reputation, your call. Domain costs are the stake PGP never had.
 
@@ -66,15 +70,15 @@ Sigyl flips it: trust is operator-curated, not social-graph-emergent. Your mirro
 - No company owns the protocol
 - No server owns your identity
 - The thing that makes it work is a file on your website
-- Human vouching doesn't scale for bots — feature, not bug
-- Narrow by design — it refuses to solve everything
-- Not trying to make trust _scalable_ — **making mistrust cheap and visible**
+- Human vouching doesn't scale for bots -- feature, not bug
+- Narrow by design -- it refuses to solve everything
+- Not trying to make trust _scalable_ -- **making mistrust cheap and visible**
 
 ## THE WEB (HOW GOSSIP WORKS)
 
 Without gossip, Sigyl is just a list. With gossip, it's a web of trust.
 
-During each crawl, your mirror looks at who your vouched mirrors trust. Anyone new gets added to your `trust.json` as a `stranger`; discovered but not trusted. ONLY humans decide who to trust.
+During each crawl, your mirror looks at who your vouched mirrors trust. Anyone new gets added to your `trust.json` as a stranger -- discovered but not trusted. ONLY humans decide who to trust.
 
 ```
 you
@@ -93,7 +97,15 @@ next crawl:
 
 **Discovery is automatic. Trust is not.**
 
-No domain gets crawled without a human deciding to `vouch` it. The web grows through judgment, not automation. That's the point.
+No domain gets crawled without a human deciding to vouch it. The web grows through judgment, not automation. That's the point.
+
+## BOT RESISTANCE
+
+A bot can buy a domain. A bot can generate a `sigyl.json`. What a bot can't do is get a human mirror admin to vouch it without that admin staking their own domain's reputation on it.
+
+A bot farm running its own mirror can vouch itself all day. It just exists in its own isolated trust graph, invisible to every legitimate mirror that didn't vouch it. Two separate webs with no edges between them.
+
+The defense isn't technical. It's social, with technical visibility. Every vouch is public. Every block is public. Bad actors reveal themselves in the data.
 
 ## TRUST.JSON
 
@@ -109,33 +121,25 @@ Mirror operators only. One file does everything.
 }
 ```
 
-- **vouch** — crawled and shown on your mirror. Your reputation behind them.
-- **stranger** — discovered but not vouched. Not crawled.
-- **block** — not crawled, not shown. Done.
-- **block_patterns** — wildcard blocks. `*.spam` blocks every `.spam` domain.
+- **vouch** -- crawled and shown on your mirror. Your reputation behind them.
+- **stranger** -- discovered but not vouched. Not crawled.
+- **block** -- not crawled, not shown. Done.
+- **block_patterns** -- wildcard blocks. `*.spam` blocks every `.spam` domain.
 
 Everything not listed is ignored. This file is public. Git history is your audit trail.
 
-## BOT RESISTANCE
-
-A bot can buy a domain. A bot can generate a `sigyl.json`. What a bot can't do is get a human mirror admin to vouch it without that admin staking their own domain's reputation on it.
-
-A bot farm running its own mirror can vouch itself all day. It just exists in its own isolated trust graph, invisible to every legitimate mirror that didn't vouch it. Two separate webs with no edges between them.
-
-The defense isn't technical. It's social, with technical visibility. Every vouch is public. Every block is public. Bad actors reveal themselves in the data. Vouch for a bot farm and YOUR domain gets blocked. 
-
 ## GENERATING YOUR KEY
 
-Go to `sigyl.org/keygen`. Pick a passphrase: a sentence only you would think of. Your favorite obscure movie quote is perfect!
+Go to `sigyl.org/keygen`. Pick a passphrase -- a sentence only you would think of. Your favorite obscure movie quote is perfect.
 
-Your passphrase is your private key. Same sentence, same key, every time, on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
+Your passphrase is your key. Same sentence, same key, every time, on any device. No backup needed. No file to lose. No QR code. Just remember your sentence.
 
 PBKDF2 derives a 32-byte seed. That seed becomes an Ed25519 keypair. The math makes brute force incredibly expensive. Your weird personal sentence makes the expense astronomical.
 
 ## RUN YOUR OWN MIRROR
 
 1. Buy a domain (~$10/year). This is your stake. Your mirror lives here.
-1. Fork the sigyl repo
+1. Fork this repo
 1. Enable GitHub Pages on your fork (Settings > Pages > source: GitHub Actions)
 1. Add a repo variable: `MIRROR_DOMAIN` = `yourdomain.com`
 1. Generate your key at `sigyl.org/keygen` and publish `sigyl.json` to your domain root
@@ -144,10 +148,10 @@ PBKDF2 derives a 32-byte seed. That seed becomes an Ed25519 keypair. The math ma
 
 After each crawl, `crawl.json` is deployed with your mirror: who was found, who failed, who was discovered. Overwritten every run. Check Action history for the audit trail.
 
-You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5–20 people. That's not a limitation, that's the architecture working.
+You decide who's on it. You vouch for them with your reputation. Most mirrors will have 5-20 people. That's not a limitation, that's the architecture working.
 
 ## THE STACK
 
 Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No VC. Humans required.
 
-_MIT — brine_
+_MIT -- brine_
