@@ -11,8 +11,6 @@ No servers. No database. No blockchain. No algorithm. **Humans required.**
 
 Every other interest graph on the web was extracted from behavior. This one is declared through relationship. The graph doesn't describe what people consume. It describes who people trust.
 
-WebRing 2.0 that brings back Web 1.0
-
 ## HOW IT WORKS
 
 Publish this at `yourdomain.com/sigyl.json`:
@@ -39,6 +37,8 @@ No appeals process. No committee. Just humans making decisions about humans, wit
 `yourdomain.com/sigyl.json` -- root only. Not a subdirectory. Not a subdomain. The file at the root proves you control the domain. That's the claim.
 
 Your domain is your reputation. The cost is just enough friction to make bad faith expensive.
+
+One key across multiple domains means one identity. Anyone crawling Sigyl can link them. That is by design for most people. If you want separate identities, use separate passphrases.
 
 ## WHAT IT'S GOOD FOR
 
@@ -152,6 +152,6 @@ You decide who's on it. You vouch for them with your reputation. Most mirrors wi
 
 ## THE STACK
 
-Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No VC. Humans required.
+Node.js. Static JSON. GitHub Actions. No database. No server. No framework. No dependencies. No VC. Humans required.
 
 _MIT -- brine_

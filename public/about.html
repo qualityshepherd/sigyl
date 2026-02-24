@@ -13,25 +13,30 @@
     <h1><span>sigyl /</span> about</h1>
     <nav>
       <a href="/">mirror</a>
+      <a href="/why">why</a>
       <a href="/keygen">keygen</a>
     </nav>
   </header>
 
   <h2>what is this</h2>
-  A lightweight, human-dependent web of trust. Publish a JSON file on a domain you own. A human who knows you vouches for it on their mirror. That's it. Math that turns "Hey, careful man, there's a beverage here" into an identity.
-  <p>
+  A lightweight, human-dependent web of trust. Publish a JSON file on a domain you own. A human who knows you vouches for it on their mirror. That's it.
+  <br><br>
   No servers. No database. No blockchain. No algorithm. <strong>Humans required.</strong>
+  <p>
+  Math that turns "hey man, there's a beverage here" into an identity. Your passphrase is a sentence only you would say. The math makes it permanent.
+  <p>
+  WebRing 2.0 that brings back Web 1.0.
 
   <h2>why it works</h2>
   <strong>Domain as collateral.</strong> Your domain has your name on it. You control what goes there. Nobody can fake that without controlling your DNS. "I swear on my domain" is the stake.
-  <p>
+  <br><br>
   <strong>Human vouching.</strong> You don't get on a mirror by signing up. Someone who knows you adds you. That's the spam filter, the moderation layer, and the bot defense — all in one.
-  <p>
+  <br><br>
   <strong>No platform.</strong> Your identity lives on your domain. If this mirror disappears, your file is still there. Nobody can take it.
 
   <h2>how to get on this mirror</h2>
   <strong>1.</strong> Generate your key at <a href="/keygen">sigyl.org/keygen</a>. Happens in your browser. Nothing is sent anywhere.
-  <p>
+  <br><br>
   <strong>2.</strong> Publish the file it gives you at <code>yourdomain.com/sigyl.json</code>. Any static host works — GitHub Pages, Cloudflare Pages, Netlify. All free.
   <pre class="json">{
   "public_key": "your-key-here",
@@ -41,11 +46,11 @@
 
   <h2>run your own mirror</h2>
   One GitHub repo. GitHub Pages for hosting. $10/year for the domain. Everything else is free.
-  <p>
+  <br><br>
   You decide who's on it. You vouch for them with your domain and reputation. If you vouch for bad actors, other mirrors stop trusting yours. Accountability is human and local.
-  <p>
+  <br><br>
   Most mirrors will have 5–20 people. That's not a limitation — that's the architecture working.
-  <p>
+  <br><br>
   <a href="https://github.com/qualityshepherd/sigyl" rel="noopener">github.com/qualityshepherd/sigyl</a>
 
   <footer>
