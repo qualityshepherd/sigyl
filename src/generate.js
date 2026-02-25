@@ -24,6 +24,11 @@ export function generateIndex (identities, mirrorDomain, crawledAt) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${mirrorDomain} / sigyl</title>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sigyl.brine.dev/">
+  <meta property="og:title" content="sigyl">
+  <meta property="og:description" content="A lightweight web of trust. Domain as stake. Humans required.">
+  <meta property="og:image" content="https://sigyl.brine.dev/sigyl.png">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
