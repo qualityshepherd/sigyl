@@ -2,14 +2,13 @@ import { env, SELF, fetchMock } from 'cloudflare:test'
 import { describe, it, expect, beforeAll, afterEach } from 'vitest'
 import { getTrustState, isMirror, isBlocked, crawl, runCrawl, generateIndex } from '../src/worker.js'
 
+// mocks are trash. We use them VERY lightly and never for anything _serious_...
 beforeAll(() => fetchMock.activate())
 afterEach(() => fetchMock.assertNoPendingInterceptors())
 
 const req = (path, opts = {}) =>
   new Request(`https://sigyl.test${path}`, opts)
-
 const get = (path) => SELF.fetch(req(path))
-
 const authed = (path) => SELF.fetch(req(`${path}?token=test-token`))
 
 describe('routing', () => {

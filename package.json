@@ -6,10 +6,10 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:crawl": "curl \"https://sigyl.brine.dev/__scheduled?cron=*+*+*+*+*\"",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev --test-scheduled",
     "tail": "wrangler tail",
-    "crawl": "curl \"https://sigyl.brine.dev/__scheduled?cron=*+*+*+*+*\"",
     "kv:list": "wrangler kv key list --binding=SIGYL_KV --remote",
     "kv:get": "wrangler kv key get --binding=SIGYL_KV --remote",
     "kv:put": "wrangler kv key put --binding=SIGYL_KV --remote",
