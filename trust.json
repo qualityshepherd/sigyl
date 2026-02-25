@@ -1,8 +1,0 @@
-{
-  "sigyl.org": "vouch",
-  "brine.dev": "vouch",
-  "worldof.brine.dev": "vouch",
-  "shitba.gs": "block",
-  "new.mirror": "stranger",
-  "block_patterns": ["*.example.com", "*.spam"]
-}
