@@ -1,8 +1,3 @@
-// sigyl worker
-// A lightweight web of trust. Domain as stake. Humans required.
-
-// ---- constants ----
-
 const VOUCH = 'vouch'
 const STRANGER = 'stranger'
 const BLOCK = 'block'
