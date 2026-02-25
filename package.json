@@ -9,10 +9,12 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev --test-scheduled",
     "tail": "wrangler tail",
+    "crawl": "curl \"https://sigyl.brine.dev/__scheduled?cron=*+*+*+*+*\"",
     "kv:list": "wrangler kv key list --binding=SIGYL_KV --remote",
     "kv:get": "wrangler kv key get --binding=SIGYL_KV --remote",
     "kv:put": "wrangler kv key put --binding=SIGYL_KV --remote",
     "kv:delete": "wrangler kv key delete --binding=SIGYL_KV --remote",
+    "kv:trust": "wrangler kv key get --binding=SIGYL_KV trust.json",
     "secret": "wrangler secret put",
     "secret:list": "wrangler secret list"
   },
