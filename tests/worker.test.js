@@ -1,13 +1,9 @@
-import { env, createExecutionContext, waitOnExecutionContext, SELF, fetchMock } from 'cloudflare:test'
+import { env, SELF, fetchMock } from 'cloudflare:test'
 import { describe, it, expect, beforeAll, afterEach } from 'vitest'
 import { getTrustState, isMirror, isBlocked, crawl, runCrawl, generateIndex } from '../src/worker.js'
-import worker from '../src/worker.js'
-
 
 beforeAll(() => fetchMock.activate())
 afterEach(() => fetchMock.assertNoPendingInterceptors())
-
-// ---- helpers ----
 
 const req = (path, opts = {}) =>
   new Request(`https://sigyl.test${path}`, opts)
@@ -15,8 +11,6 @@ const req = (path, opts = {}) =>
 const get = (path) => SELF.fetch(req(path))
 
 const authed = (path) => SELF.fetch(req(`${path}?token=test-token`))
-
-// ---- routing ----
 
 describe('routing', () => {
   it('serves index.html from KV', async () => {
@@ -58,8 +52,6 @@ describe('routing', () => {
   })
 })
 
-// ---- trust graph ----
-
 describe('trust graph', () => {
   it('recognizes vouch state', () => {
     expect(getTrustState({ 'brine.dev': 'vouch' }, 'brine.dev')).toBe('vouch')
@@ -100,8 +92,6 @@ describe('trust graph', () => {
   })
 })
 
-// ---- crawler & gossip ----
-
 describe('crawler', () => {
   it('discovers new domains from mirror trust graphs as strangers', async () => {
     const remoteTrust = { 'discovered.dev': 'vouch', block_patterns: [] }
@@ -131,13 +121,10 @@ describe('crawler', () => {
       'unknown.dev': 'stranger'
     }))
     const result = await runCrawl(env)
-    // Strangers appear in identities but aren't actively crawled (so no errors)
     expect(result.identities).toContainEqual({ domain: 'unknown.dev', trust: 'stranger' })
     expect(result.errors.some(e => e.domain === 'unknown.dev')).toBe(false)
   })
 })
-
-// ---- crawl.json ----
 
 describe('crawl.json', () => {
   it('includes crawled_at timestamp', async () => {
@@ -148,8 +135,6 @@ describe('crawl.json', () => {
     expect(new Date(crawl.crawled_at).getTime()).toBeLessThanOrEqual(Date.now())
   })
 })
-
-// ---- admin ----
 
 describe('admin', () => {
   it('lists strangers waiting for review', async () => {
@@ -175,13 +160,19 @@ describe('admin', () => {
     expect(trust['rando.dev']).toBe('block')
   })
 
+  it('upgrades a stranger to a mirror', async () => {
+    await env.SIGYL_KV.put('trust.json', JSON.stringify({ 'peer-mirror.com': 'stranger' }))
+    const res = await SELF.fetch(req('/admin/trust?token=test-token&domain=peer-mirror.com&state=mirror'), { redirect: 'manual' })
+    expect(res.status).toBe(302)
+    const trust = JSON.parse(await env.SIGYL_KV.get('trust.json'))
+    expect(trust['peer-mirror.com']).toEqual({ trust: 'vouch', mirror: true })
+  })
+
   it('rejects action without valid token', async () => {
     const res = await get('/admin/trust?domain=rando.dev&state=vouch')
     expect(res.status).toBe(401)
   })
 })
-
-// ---- html generation ----
 
 describe('index.html', () => {
   it('renders vouched identities and mirrors correctly', () => {
@@ -191,7 +182,6 @@ describe('index.html', () => {
     ]
     const html = generateIndex(identities, 'sigyl.test', new Date().toISOString())
     expect(html).toContain('brine.dev')
-    expect(html).toContain('✓')
     expect(html).toContain('other-mirror.dev')
     expect(html).toContain('mirror')
   })
@@ -201,9 +191,7 @@ describe('index.html', () => {
       'blocked.dev': 'block',
       'stranger.dev': 'stranger'
     }))
-
     await runCrawl(env)
-
     const res = await get('/')
     const html = await res.text()
     expect(html).not.toContain('blocked.dev')

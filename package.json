@@ -16,7 +16,8 @@
     "kv:delete": "wrangler kv key delete --binding=SIGYL_KV --remote",
     "kv:trust": "wrangler kv key get --binding=SIGYL_KV trust.json",
     "secret": "wrangler secret put",
-    "secret:list": "wrangler secret list"
+    "secret:list": "wrangler secret list",
+    "pretty": "npx standard --fix"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "latest",
