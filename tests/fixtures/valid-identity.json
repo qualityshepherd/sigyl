@@ -1,6 +1,0 @@
-{
-  "identities": [
-    { "public_key": "abc123" },
-    { "public_key": "def456" }
-  ]
-}

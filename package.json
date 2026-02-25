@@ -1,18 +1,23 @@
 {
   "name": "sigyl",
-  "author": "brine",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A lightweight web of trust. Domain as stake. Humans required.",
   "type": "module",
-  "description": "Sigyl is a domain-based trust index for operators who want visibility without surrendering judgment. A lightweight, human-dependent web of trust.",
-  "license": "MIT",
-  "standard": {
-    "env": ["node"]
-  },
-  "main": "src/mirror.js",
   "scripts": {
-    "start": "node src/mirror.js",
-    "test": "node --test tests/unit/*.test.js",
-    "server": "npx http-server public -s -p 4242",
-    "pretty": "npx standard --fix"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail",
+    "kv:list": "wrangler kv key list --binding=SIGYL_KV --remote",
+    "kv:get": "wrangler kv key get --binding=SIGYL_KV --remote",
+    "kv:put": "wrangler kv key put --binding=SIGYL_KV --remote",
+    "kv:delete": "wrangler kv key delete --binding=SIGYL_KV --remote",
+    "secret": "wrangler secret put",
+    "secret:list": "wrangler secret list"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "latest",
+    "vitest": "^3.1.4"
   }
 }
